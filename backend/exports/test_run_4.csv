@@ -1,0 +1,6 @@
+sequence,success,status_code,request_time_ms,error_message
+1,False,0,10836.12,"HTTPSConnectionPool(host='httpbin.org', port=443): Read timed out. (read timeout=10)"
+2,False,0,10836.12,"HTTPSConnectionPool(host='httpbin.org', port=443): Read timed out. (read timeout=10)"
+3,False,0,10835.11,"HTTPSConnectionPool(host='httpbin.org', port=443): Read timed out. (read timeout=10)"
+4,False,0,10835.11,"HTTPSConnectionPool(host='httpbin.org', port=443): Read timed out. (read timeout=10)"
+5,True,200,1056.61,

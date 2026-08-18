@@ -1,0 +1,10 @@
+# D:\autodev\performancetester\requirements.txt
+fastapi
+uvicorn
+sqlalchemy
+pyodbc
+pandas
+matplotlib
+reportlab
+requests
+python-multipart

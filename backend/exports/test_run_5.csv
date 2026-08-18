@@ -1,0 +1,6 @@
+sequence,success,status_code,request_time_ms,error_message
+1,True,200,1470.3,
+2,True,200,1919.08,
+3,True,200,1418.57,
+4,True,200,1313.96,
+5,False,0,10847.66,"HTTPSConnectionPool(host='httpbin.org', port=443): Read timed out. (read timeout=10)"
