@@ -7,51 +7,37 @@ it will use uv and npm
 and it will open up a browser for you to select the test type and your parameters.
 
 
-┌─────────────────┐       HTTP POST /run-test       ┌────────────────────────┐
-│                 │ ──────────────────────────────> │                        │
-│   React UI      │                                 │   FastAPI Web Server   │
-│  (Port 3000)    │ <────────────────────────────── │      (Port 8000)       │
-└─────────────────┘      200 OK + test_run_id       └────────────────────────┘
-         │                                                      │
-         │ Poll /run/{id}                                       │ FastAPI BackgroundTasks
-         ▼ (Every 1.5s)                                         ▼
-┌─────────────────┐                        ┌─────────────────────────────────┐
-│                 │                        │     ThreadPoolExecutor          │
-│   Interactive   │                        │   (Concurrent Worker Threads)   │
-│  Latency Graph  │                        └─────────────────────────────────┘
-└─────────────────┘                                         │
-                                                            │ Fires HTTP GET Requests
-                                                            ▼
-                                                    ┌───────────────┐
-                                                    │ Target Server │
-                                                    └───────────────┘
-                                                            │
-                                                            │ Aggregates & Persists
-                                                            ▼
-                                           ┌─────────────────────────────────┐
-                                           │  • SQLite DB (performance.db)   │
-                                           │  • CSV Exports (.csv)           │
-                                           │  • PDF Reports (.pdf)           │
-                                           └─────────────────────────────────┘
+System Architecture and Execution Flow
 
+Triggering the Test
 
-D:\autodev\performancetester
-├── requirements.txt                # Python environment package list
-├── performance.db                  # Local SQLite database (Auto-generated on startup)
-├── backend/
-│   ├── main.py                     # FastAPI application endpoints & BackgroundTask routing
-│   ├── database.py                 # SQLAlchemy SQLite engine connection & session generator
-│   ├── models.py                   # ORM models (TestRun, RequestResult)
-│   ├── exports/                    # Output directory for generated CSV & PDF reports
-│   ├── tests/
-│   │   └── test_runner.py          # Concurrent ThreadPoolExecutor load generator
-│   └── reports/
-│       └── pdf_generator.py        # ReportLab PDF compiler & Matplotlib charting script
-└── frontend/
-    └── src/
-        ├── App.js                  # Main React routing and navigation bar
-        ├── TestRunnerPage.jsx      # Test configuration form & status poller
-        └── AnalyticsPage.jsx       # Historical runs viewer, Chart.js graphs, & PDF export trigger
+The React UI running on Port 3000 sends an HTTP POST request to the run test endpoint on the FastAPI Web Server running on Port 8000. FastAPI immediately responds with an HTTP 200 OK status code along with a generated test run ID to ensure the client remains non-blocking.
+
+Background Execution
+
+The FastAPI Background Tasks system triggers a ThreadPoolExecutor configured with concurrent worker threads. These worker threads continuously fire HTTP GET load requests directly to the Target Server.
+
+Data Aggregation and Telemetry
+
+All test results are aggregated and persisted across multiple storage layers. Raw metrics are written to the SQLite database performance.db file. Detailed raw request records are exported into CSV files. Visual summary analytics are compiled into downloadable PDF reports.
+
+UI Updates and Visualization
+
+The React UI periodically polls the run status endpoint every 1.5 seconds. Upon test completion, the frontend fetches the complete dataset to render an Interactive Latency Graph for user analytics.
+
+Directory Structure
+
+Root Folder
+
+The root directory located at D:\autodev\performancetester contains the requirements.txt file for Python package dependencies and the performance.db file which serves as the local SQLite database auto-generated on application startup.
+
+Backend Services
+
+The backend folder contains main.py for API endpoints and background task routing. The database.py file handles the SQLAlchemy connection and session creation. The models.py file establishes ORM definitions including TestRun and RequestResult. The exports folder stores generated CSV and PDF output files. Inside backend tests, test_runner.py houses the concurrent load testing execution engine. Inside backend reports, pdf_generator.py provides the PDF report compilation and charting engine.
+
+Frontend Interface
+
+The frontend src folder contains App.js for main client routing and navigation. TestRunnerPage.jsx handles the test configuration form input and status polling logic. AnalyticsPage.jsx provides the historical analytics dashboard, Chart.js graphical views, and PDF export triggers.
 
 
 Navigate to http://localhost:3000 in your browser.
